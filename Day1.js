@@ -9,17 +9,20 @@ fs.readFile('Day1.txt', 'utf8', function(err, data) {
 	let total = 0;
 	let frequencies = new Array();
 
-	let found = true,
-		first = true;
-	while (found) {
-		total = iterateFreqs(lines, total, frequencies);
+	let notFound = true,
+		first = true,
+		iterations = 0;
+
+	while (notFound) {
+		iterations ++
+		total = iterateFreqs(lines, total, frequencies, iterations);
 		first && console.log("total is:", total);
 		first = false;
 	}
 
 });
 
-function iterateFreqs(lines, total, frequencies) {
+function iterateFreqs(lines, total, frequencies, iterations) {
 	let length = lines.length;
 
 	for (let i = 0; i < length; i++) {
@@ -39,6 +42,7 @@ function iterateFreqs(lines, total, frequencies) {
 		}
 		else {
 			console.log("first repeating frequency:", total);
+			console.log(`it took ${iterations} iterations`);
 			process.exit();
 		}
 	}
