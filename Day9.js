@@ -1,5 +1,5 @@
-let //playerCount = 404,
-	playerCount = 10,
+let playerCount = 404,
+	//playerCount = 9,
 	players = {
 		'1': {
 			score: 0
@@ -9,14 +9,56 @@ let //playerCount = 404,
 		}
 	},
 	activePlayer = 2,
-	//lastMarbleVal = 71852,
-	lastMarbleVal = 1618,
+	lastMarbleVal = 7185200,//p1 was 71852
 	latestMarbleVal = 2,
-	currMarble = 2,
-	currMarbleIndex = 1,
-	circle = [0, 2, 1]
+	currMarble = 2;
 
-while (latestMarbleVal !== lastMarbleVal) {
+//set up the initial 3 nodes
+let node0 = {
+	marble: 0
+};
+let node1 = {
+	left: node0,
+	right: node0,
+	marble: 1
+};
+let node2 = {
+	marble: 2,
+	left: node0,
+	right: node1
+};
+node1.left = node2;
+node0.left = node1;
+node0.right = node2;
+let activeMarble = node2;
+
+//insert based on provided node (provided node assumes the active node)
+function insertMarble(node, val) {
+	let rightMarble = node.right;
+		insertBefore = rightMarble.right;
+	let newNode = {
+		marble: val,
+		left: rightMarble,
+		right: insertBefore
+	};
+	rightMarble.right = newNode;
+	insertBefore.left = newNode;
+
+	return newNode;
+}
+
+//reove based on provided node (assumes provided node is the active node)
+function removeMarble(node) {
+	let nodeToRemove = node;
+	for(let i = 0; i < 7; i++) {
+		nodeToRemove = nodeToRemove.left;
+	}
+	nodeToRemove.left.right = nodeToRemove.right;
+	nodeToRemove.right.left = nodeToRemove.left;
+	return nodeToRemove;
+}
+
+while (currMarble !== lastMarbleVal) {
 //while (currMarble !== 25) {
 	let nextMarble = currMarble + 1;
 	activePlayer = nextMarble % playerCount === 0 ? playerCount : nextMarble % playerCount;
@@ -26,29 +68,22 @@ while (latestMarbleVal !== lastMarbleVal) {
 
 	//if divisible by 23
 	if (nextMarble % 23 === 0) {
-		let marbleToRemove = currMarbleIndex - 7;
-		if (marbleToRemove < 0) marbleToRemove = circle.length - marbleToRemove;
-		let val = circle[marbleToRemove];
-		players[`${activePlayer}`].score += nextMarble + val;
-		circle.splice(marbleToRemove, 1);
-		latestMarbleVal = nextMarble + val;
-		currMarbleIndex = marbleToRemove;
+
+		let removedNode = removeMarble(activeMarble);
+		players[`${activePlayer}`].score += nextMarble + removedNode.marble;
+		activeMarble = removedNode.right;
+		delete removedNode;
 		currMarble = nextMarble;
+
 	} else {
-		let newIndex = (currMarbleIndex + 2) % circle.length;
-		newIndex === 0 ? circle.push(nextMarble) : circle.splice(newIndex, 0, nextMarble);
+		activeMarble = insertMarble(activeMarble, nextMarble);
 		currMarble = nextMarble;
-		currMarbleIndex = newIndex === 0 ? circle.length - 1 : newIndex;
 	}
-	//console.log(circle);
 }
 
-//console.log(players);
 let highscore = 0;
 Object.keys(players).map(elf => {
 	if (players[elf].score > highscore) highscore = players[elf].score;
 });
-
-//console.log(players);
 
 console.log({highscore});
