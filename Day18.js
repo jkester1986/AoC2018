@@ -37,13 +37,6 @@ fs.readFile('Day18.txt', 'utf8', function (err, data) {
 		for(let x1 = xMin; x1 <= xMax; x1++) {
 			for(let y1 = yMin; y1 <= yMax; y1++) {
 				if(! (x === x1 && y === y1)) {
-					/*
-					console.log({
-						x1,
-						y1,
-						land: land[x1][y1]
-					});
-					*/
 					switch(land[x1][y1]) {
 						case '#':
 							lumber++;
@@ -56,8 +49,6 @@ fs.readFile('Day18.txt', 'utf8', function (err, data) {
 				}
 			}
 		}
-
-		//console.log({trees, lumber});
 
 		switch(land[x][y]) {
 			case '.':
@@ -90,8 +81,8 @@ fs.readFile('Day18.txt', 'utf8', function (err, data) {
 				string += land[x][y];
 			}
 		}
-		strings[string] ? match = true : strings[string] = true;//found where a repeat happens
 		count++;
+		strings[string] ? match = true : strings[string] = count;//found where a repeat happens
 	}
 
 	console.log({count});
@@ -113,7 +104,6 @@ fs.readFile('Day18.txt', 'utf8', function (err, data) {
 		}
 		count++;
 	}
-	
 
 	let treeCount = 0,
 		lumberCount = 0;
