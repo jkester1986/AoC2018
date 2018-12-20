@@ -82,10 +82,12 @@ fs.readFile('Day18.txt', 'utf8', function (err, data) {
 			}
 		}
 		count++;
-		strings[string] ? match = true : strings[string] = count;//found where a repeat happens
+		if(strings[string]) {
+			match = true;
+			count = count - strings[string];//this is how many cycles it takes to repeat
+		}
+		else strings[string] = count;
 	}
-
-	console.log({count});
 
 	//this section is for p2
 	let upTo = 1000000000 % count;
