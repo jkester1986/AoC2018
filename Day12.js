@@ -3,7 +3,7 @@ fs.readFile('Day12.txt', 'utf8', function (err, data) {
 	if (err) {
 		return console.log(err);
 	}
-	let pots = "..##.##.##..#..#.#.#.#...#...#####.###...#####.##..#####.#..#.##..#..#.#...#...##.##...#.##......####...",
+	let pots = "##.##.##..#..#.#.#.#...#...#####.###...#####.##..#####.#..#.##..#..#.#...#...##.##...#.##......####.".split(''),
 		lines = data,
 		directions = {},
 		pattern = /([#.]{5}).{4}([#.])/;
@@ -14,47 +14,67 @@ fs.readFile('Day12.txt', 'utf8', function (err, data) {
 		directions[`${match[1]}`] = match[2];
 	});
 
-	let potNodes = {},
-		potsLength = pots.length;
+	let pot0 = 0;
 
-	for(let i = 0; i < potsLength; i++) {
-		potNodes[`${i}`] = {
-			pot: pots[i],
-		};
+	let generation = 0;
+	while (generation < 20) {
+		generation++;
+		nextGen = [...pots];
+
+		let length = pots.length;
+		let toAddLeft = 0;
+		let toAddRight = 0;
+
+		for (let i = 0; i < length; i++) {
+			let loc1 = pots[i-2];
+			let loc2 = pots[i-1];
+			let currPot = pots[i];
+			let loc4 = pots[i+1];
+			let loc5 = pots[i+2];
+			if (!loc1) {
+				loc1 = '.';
+				toAddLeft++;
+			}
+			if (!loc2) {
+				loc2 = '.';
+				toAddLeft++;
+			}
+			if (!loc4) {
+				loc4 = '.';
+				toAddRight++;
+			}
+			if (!loc5) {
+				loc5 = '.';
+				toAddRight++;
+			}
+			const mapping = `${loc1}${loc2}${currPot}${loc4}${loc5}`;
+			nextGen[i] = directions[mapping];
+		}
+		const nextGenString = nextGen.join('');
+		if (toAddLeft && !nextGenString.startsWith('...')) {
+			pot0 = toAddLeft ?
+				toAddLeft >= 2 ? pot0 + 2 : pot0 + 1 :
+				pot0;
+			nextGen.unshift('.');
+			if (toAddLeft >= 2) {
+				nextGen.unshift('.');
+			}
+		}
+		if (toAddRight && !nextGenString.endsWith('...')) {
+			nextGen.push('.');
+			if (toAddRight >= 2) {
+				nextGen.push('.');
+			}
+		}
+		pots = nextGen;
 	}
 
-	let getRule = (index) => {
-		let node = potNodes[`${index}`],
-			l = potNodes[`${index-1}`],
-			ll = potNodes[`${index-2}`],
-			r = potNodes[`${index+1}`],
-			rr = potNodes[`${index+2}`];
-
-		if (!l) l = potNodes[`${index-1}`] = { pot: "."};
-		if (!ll) ll = potNodes[`${index-2}`] = { pot: "."};
-		if (!r) r = potNodes[`${index+1}`] = { pot: "."};
-		if (!rr) rr = potNodes[`${index+2}`] = { pot: "."};
-
-		//console.log(l, ll, r, rr, node);
-
-		return ll.pot + l.pot + node.pot + r.pot + rr.pot;
-	}
-	//console.log(getRule(0));
-	let count = 0;
-
-	while (count < 20) {
-		let newPots = "";
-		Object.keys(potNodes).map(node => {
-			let index = parseInt(node),
-				rule = getRule(index);
-			potNodes[node].nextPot = directions[rule];
-			newPots += directions[rule];
-		});
-		console.log(newPots);
-
-		//TODO: iterate over the nodes again, change pot to nextPot
-		//process.exit();
-		count++;
-	}
-
+	let sum = pots.reduce((acc, pot, i) => {
+		let actualIndex = i - pot0;
+		if (pot === '#') {
+			acc += actualIndex;
+		}
+		return acc;
+	}, 0);
+	console.log(sum);
 });
